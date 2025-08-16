@@ -1,0 +1,18 @@
+findloc OFFSET binary "\x27\x49\x73\x82"
+do
+    goto OFFSET
+    get MAGIC long
+    get PAD long  
+    get FILE_SIZE long
+    
+    get NAME basename
+    string NAME + "_"
+    string NAME + OFFSET
+    string NAME + ".dar"
+    
+    log NAME OFFSET FILE_SIZE
+    
+    math OFFSET += FILE_SIZE
+    goto OFFSET
+    findloc OFFSET binary "\x27\x49\x73\x82"
+while OFFSET != ""

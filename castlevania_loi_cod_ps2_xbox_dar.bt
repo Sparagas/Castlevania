@@ -1,0 +1,55 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: castlevania_6th_gen_dar.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//            Rodolfo Nuñez (roocker666)
+//   Purpose: Parse Castlevania: Lament of Innocence, Castlevania: Curse of Darkness
+//  Category: Game Archives
+// File Mask: *.dar
+//------------------------------------------------
+
+struct Header {
+    uint32 magic;
+    uint32 pad;
+    uint32 file_size;
+    uint32 pad;
+    uint32 num_files;
+    uint32 table_ofs;
+    uint32 pad;
+    uint32 pad;
+};
+
+enum FileType {
+    TYPE_UNKNOWN     = 0,
+    TYPE_TEXTURE     = 2,
+    TYPE_SHADOW_MESH = 4,
+    TYPE_MESH        = 14,
+    TYPE_ANIMATION   = 18
+};
+
+struct Entry {
+    uint32   unk;
+    FileType file_type;
+    uint32   file_ofs;
+    uint32   file_size;
+};
+
+struct FileData (int i) {
+    uint8 data[entries[i].file_size];
+};
+
+// Start parsing the file
+Header header;
+
+FSeek(0x20);
+Entry entries[header.num_files];
+
+FSeek(entries[0].file_ofs+32);
+struct Files {
+    local int i;
+    for(i = 0; i < header.num_files; i++) {
+        FSeek(entries[i].file_ofs+32+16*i);
+        FileData file(i);
+    }
+} files;

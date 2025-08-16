@@ -1,0 +1,55 @@
+#      Game: Castlevania: Lament of Innocence, Castlevania: Curse of Darkness
+#  Platform: Microsoft - Xbox
+# File type: archive
+# Extension: dar
+#   Authors: Laurynas Zubavičius (Sparagas), Rodolfo Nuñez (roocker666)
+
+get MAGIC long
+goto 0x8
+get FILESIZE long
+goto 0x10
+get NUMFILES long
+get TABLE_OFFSET long
+
+# Go to file table
+goto 0x20
+
+# File type descriptions
+set TYPE_UNKNOWN = 0
+set TYPE_TEXTURE = 2
+set TYPE_SHADOW_MESH = 4
+set TYPE_MESH = 14
+set TYPE_ANIMATION = 18
+
+# Process each file entry
+for i = 0 < NUMFILES
+    get UNKNOWN long
+    get FILE_TYPE long
+    get FILE_OFFSET long
+    get FILE_SIZE long
+    
+    # Corrected offset adjustment
+    math ADJUSTED_OFFSET = FILE_OFFSET
+    math ADJUSTED_OFFSET += 32
+    math TEMP = 16
+    math TEMP *= i
+    math ADJUSTED_OFFSET += TEMP
+    
+    # Set file extension based on type
+    if FILE_TYPE == TYPE_TEXTURE
+        set EXTENSION string ".tex"
+    elif FILE_TYPE == TYPE_SHADOW_MESH
+        set EXTENSION string ".shadow"
+    elif FILE_TYPE == TYPE_MESH
+        set EXTENSION string ".mdl"
+    elif FILE_TYPE == TYPE_ANIMATION
+        set EXTENSION string ".anim"
+    else
+        set EXTENSION string ".bin"
+    endif
+    
+    # Extract file with type-based name using the adjusted offset
+    string FILENAME p= "file%d_%s" i EXTENSION
+    log FILENAME ADJUSTED_OFFSET FILE_SIZE
+    
+next i

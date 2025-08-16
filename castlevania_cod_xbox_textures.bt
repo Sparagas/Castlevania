@@ -1,0 +1,51 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: castlevania_cod_xbox_textures.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Castlevania: Curse of Darkness textures for Microsoft.
+//  Category: Image
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+//#include "color.bt"
+
+struct XboxImgIdxHdr
+{
+    uint16 unk_1;
+    uint16 unk_4;
+    uint32 ofs_idx_dat;
+    uint32 unk0_0;
+    uint16 unk_2857;
+    uint16 unk;
+    uint32 unk1_0[4];
+    uint32 w;
+    uint32 h;
+    uint32 unk_11;
+    uint32 ofs_idx_dat;
+    Assert(ofs_idx_dat[0] == ofs_idx_dat[1],
+        "ofs_idx_dat[0] is not equal to ofs_idx_dat[1]");
+};
+struct XboxImgPalHdr
+{
+    uint16 unk_1;
+    uint16 unk_3;
+    uint32 ofs_pal_dat;
+    uint32 unk_0[9];
+    uint32 ofs_pal_dat;
+};
+
+
+FSkip(64);
+XboxImgIdxHdr xbox_img_idx_hdr;
+XboxImgPalHdr xbox_img_pal_hdr;
+
+FSeek(xbox_img_idx_hdr.ofs_idx_dat + 64);
+ubyte idx_8b_256[xbox_img_idx_hdr.w * xbox_img_idx_hdr.h];
+
+FSeek(xbox_img_pal_hdr.ofs_pal_dat + 64 + 48);
+ubyte bgra[256 * 4];

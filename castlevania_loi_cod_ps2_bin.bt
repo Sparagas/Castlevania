@@ -1,0 +1,48 @@
+//------------------------------------------------
+//--- 010 Editor v16.0 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct DARHeader {
+    uint32 magic;
+    uint32 pad1;
+    uint32 file_size;
+    uint32 pad2;
+    uint32 num_files;
+    uint32 table_ofs;
+    uint32 pad3;
+    uint32 pad4;
+};
+ 
+struct DARFile {
+    DARHeader header;
+    if (header.file_size > 32) {
+        uchar data[header.file_size - 32];
+    }
+};
+
+// Manual search and parse
+local int pos, fake_size = 0;
+while (pos < FileSize() - 4) {
+    if (ReadUInt(pos) == 0x82734927) {
+        FSeek(pos);
+        DARFile dar;
+        pos += dar.header.file_size; // Jump by the actual DAR file size
+    } else {
+        // Read the file_size from the fake header to skip by that amount
+        fake_size = ReadUInt(pos + 8); // file_size is at offset 8
+        if (fake_size > 0 && fake_size < FileSize()) {
+            pos += fake_size;
+        } else {
+            pos += 1024; // Default skip if size looks invalid
+        }
+    }
+}
